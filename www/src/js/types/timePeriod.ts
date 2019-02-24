@@ -1,3 +1,5 @@
+import { SCHOOLDAYS } from 'utils/timify';
+
 export type DayText = string; // E.g. "Monday", "Tuesday"
 export type StartTime = string; // E.g. "1400"
 export type EndTime = string; // E.g. "1500"
@@ -6,6 +8,7 @@ export type EndTime = string; // E.g. "1500"
  * Represents a time period in the timetable.
  */
 export type TimePeriod = {
+  Day: number; // Day of week (ie. 0 = Monday, 1 = Tuesday etc.)
   DayText: DayText;
   StartTime: StartTime;
   EndTime: EndTime;
@@ -22,12 +25,13 @@ export type ColoredTimePeriod = TimePeriod & {
  * Returns a generic time period with some default parameter values, if they are not specified.
  */
 export function createGenericTimePeriod(
-  dayText: DayText = 'Monday',
+  day: number = 0,
   startTime: StartTime = '0800',
   endTime: EndTime = '1000',
 ): TimePeriod {
   return {
-    DayText: dayText,
+    Day: day,
+    DayText: SCHOOLDAYS[day],
     StartTime: startTime,
     EndTime: endTime,
   };
@@ -37,13 +41,13 @@ export function createGenericTimePeriod(
  * Returns a generic colored time period with some default parameter values, if they are not specified.
  */
 export function createGenericColoredTimePeriod(
-  dayText?: DayText,
+  day?: number,
   startTime?: StartTime,
   endTime?: EndTime,
   colorIndex: number = 0,
 ): ColoredTimePeriod {
   return {
-    ...createGenericTimePeriod(dayText, startTime, endTime),
+    ...createGenericTimePeriod(day, startTime, endTime),
     colorIndex,
   };
 }
