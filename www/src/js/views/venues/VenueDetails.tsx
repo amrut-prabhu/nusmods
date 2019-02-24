@@ -3,8 +3,9 @@ import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 import classnames from 'classnames';
 import { flatMap } from 'lodash';
 
-import { DayAvailability, Venue, VenueLesson, VenueSearchOptions  } from 'types/venues';
+import { DayAvailability, Venue, VenueLesson, VenueSearchOptions } from 'types/venues';
 import { Lesson } from 'types/modules';
+import { createGenericColoredTimePeriod } from 'types/timePeriod';
 
 import { colorLessonsByKey } from 'utils/colors';
 import { arrangeLessonsForWeek } from 'utils/timetables';
@@ -15,6 +16,7 @@ import { modulePage, venuePage } from 'views/routes/paths';
 import Title from 'views/components/Title';
 import { mergeDualCodedModules } from 'utils/venues';
 import { breakpointDown } from 'utils/css';
+import { convertIndexToTime } from 'utils/timify';
 import VenueLocation from './VenueLocation';
 
 import styles from './VenueDetails.scss';
@@ -41,8 +43,20 @@ export class VenueDetailsComponent extends React.PureComponent<Props> {
     return arrangeLessonsForWeek(coloredLessons);
   }
 
+  /** Returns a colored time period representing the search period */
+  getHighlightPeriod() {
+    const { searchedPeriod } = this.props;
+
+    const day = searchedPeriod.day;
+    const startTime = convertIndexToTime(this.props.searchedPeriod.time * 2);
+    const endTime = convertIndexToTime(
+      2 * (this.props.searchedPeriod.time + this.props.searchedPeriod.duration),
+      );
+    return createGenericColoredTimePeriod(day, startTime, endTime, 0);
+  }
+
   render() {
-    const { venue, previous, next, matchBreakpoint, history } = this.props;
+    const { venue, previous, next, matchBreakpoint, history, searchedPeriod } = this.props;
 
     return (
       <>
@@ -81,6 +95,7 @@ export class VenueDetailsComponent extends React.PureComponent<Props> {
         <div className={classnames(styles.timetable, { verticalMode: matchBreakpoint })}>
           <Timetable
             lessons={this.arrangedLessons()}
+            highlightPeriod={this.getHighlightPeriod()}
             isVerticalOrientation={matchBreakpoint}
             onModifyCell={(lesson: Lesson) => {
               history.push(modulePage(lesson.ModuleCode, lesson.ModuleTitle));
